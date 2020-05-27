@@ -8,7 +8,7 @@ An open source, and neko(!) alternative to rousr's Dissonance.
 Simply import extension package into your project and then refer to NekoPresence wiki for more information https://github.com/nkrapivin/NekoPresence/wiki
 
 ## Building NekoPresence
-I provide pre-compiled versions of NekoPresence for Windows and 64-bit Linux for GameMaker Studio 2.
+I provide pre-compiled versions of NekoPresence for Windows and 32/64-bit Linux (tested on Ubuntu).
 
 But in some rare cases you may want to build this extension yourself.
 
