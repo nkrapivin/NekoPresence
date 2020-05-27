@@ -12,7 +12,8 @@ But in some rare cases you may want to build this extension yourself.
 #### Windows
 1. Open `NekoPresence.sln` in Visual Studio 2019.
 2. Build it.
-3. Replace `NekoPresence.dll` in extension files with your new DLL.
+3. Replace `Release\NekoPresence.dll` in extension files with your new DLL.
+PS: (Build directory of the project is set to `Release\`, DLL in root of this repo won't be replaced, it's just here to make it easier to find!)
 
 #### Linux (64-Bit, Debian-based)
 1. Make sure you have `build-essential` package installed.
