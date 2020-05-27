@@ -140,6 +140,18 @@ extern "C" {
 		return GM_TRUE;
 	}
 
+	EXPORTED_FN double np_registergame(char* client_id, char* command) {
+		if (!np_Initialized) return GM_FALSE;
+		Discord_Register(client_id, command);
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_registergame_steam(char* client_id, char* steam_id) {
+		if (!np_Initialized) return GM_FALSE;
+		Discord_RegisterSteamGame(client_id, steam_id);
+		return GM_TRUE;
+	}
+
 	EXPORTED_FN double np_setpresence_more(char* small_image_text, char* large_image_text, double instance) {
 		if (!np_Initialized) return GM_FALSE;
 
@@ -164,6 +176,12 @@ extern "C" {
 		discordPresence.smallImageText = np_small_image_text;
 		discordPresence.instance = (int8_t)np_instance;
 		Discord_UpdatePresence(&discordPresence);
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_clearpresence(void) {
+		if (!np_Initialized) return GM_FALSE;
+		Discord_ClearPresence();
 		return GM_TRUE;
 	}
 }
