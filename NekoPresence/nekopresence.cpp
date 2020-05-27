@@ -8,6 +8,7 @@
 #include "pch.h"
 #include "discord_rpc.h"
 #include "discord_register.h"
+#include <cstdlib>
 
 #if !defined( _MSC_VER)
 #define EXPORTED_FN __attribute__((visibility("default")))
@@ -26,6 +27,18 @@ extern "C" {
 
 	static char* np_small_image_text = NULL;
 	static char* np_large_image_text = NULL;
+
+	static char* np_join_secret = NULL;
+	static char* np_spectate_secret = NULL;
+	static char* np_match_secret = NULL;
+
+	static double np_party_size = 0;
+	static double np_party_max = 0;
+	static char* np_party_id = NULL;
+
+	static int64_t np_start_timestamp = 0;
+	static int64_t np_end_timestamp = 0;
+
 	static double np_instance = 0;
 
 	void (*CreateAsynEventWithDSMap)(int, int) = NULL;
@@ -133,6 +146,27 @@ extern "C" {
 		return GM_TRUE;
 	}
 
+	EXPORTED_FN char* np_get_avatar_url(char* user_id, char* avatar_hash) {
+		if (!np_Initialized || strcmp(avatar_hash, "") || strcmp(user_id, "")) return (char*)"";
+
+		// https://cdn.discordapp.com/avatars/{USER_ID}/{AVATAR_HASH}.png
+		auto start_url = "https://cdn.discordapp.com/avatars/";
+		auto backslash = "/";
+		auto png_extn = ".png";
+
+		char* ret;
+
+		ret = (char*)malloc(strlen(start_url) + strlen(backslash) + strlen(png_extn) + strlen(user_id) + strlen(avatar_hash) + 1);
+
+		strcpy(ret, start_url);
+		strcat(ret, user_id);
+		strcat(ret, backslash);
+		strcat(ret, avatar_hash);
+		strcat(ret, png_extn);
+
+		return ret;
+	}
+
 	EXPORTED_FN double np_update() {
 		if (!np_Initialized) return GM_FALSE;
 
@@ -152,6 +186,36 @@ extern "C" {
 		return GM_TRUE;
 	}
 
+	EXPORTED_FN double np_respond(char* user_id, double reply) {
+		if (!np_Initialized) return GM_FALSE;
+		Discord_Respond(user_id, (int)reply);
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_setpresence_secrets(char* matchSecret, char* spectateSecret, char* joinSecret) {
+		if (!np_Initialized) return GM_FALSE;
+		np_join_secret = strdup(joinSecret);
+		np_spectate_secret = strdup(spectateSecret);
+		np_match_secret = strdup(matchSecret);
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_setpresence_clearsecrets(void) {
+		if (!np_Initialized) return GM_FALSE;
+		np_join_secret = NULL;
+		np_match_secret = NULL;
+		np_spectate_secret = NULL;
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_setpresence_partyparams(double partySize, double partyMax, char* partyId) {
+		if (!np_Initialized) return GM_FALSE;
+		np_party_size = (int)partySize;
+		np_party_max = (int)partyMax;
+		np_party_id = strdup(partyId);
+		return GM_TRUE;
+	}
+
 	EXPORTED_FN double np_setpresence_more(char* small_image_text, char* large_image_text, double instance) {
 		if (!np_Initialized) return GM_FALSE;
 
@@ -159,6 +223,16 @@ extern "C" {
 		np_small_image_text = strdup(small_image_text);
 		np_large_image_text = strdup(large_image_text);
 		np_instance = instance;
+
+		return GM_TRUE;
+	}
+
+	EXPORTED_FN double np_setpresence_timestamps(double startTimestamp, double endTimestamp) {
+		if (!np_Initialized) return GM_FALSE;
+
+		// Yes, compiler, I know that there is a loss of data, no need to warn me about it.
+		np_start_timestamp = startTimestamp;
+		np_end_timestamp = endTimestamp;
 
 		return GM_TRUE;
 	}
@@ -174,6 +248,14 @@ extern "C" {
 		discordPresence.smallImageKey = small_image_key;
 		discordPresence.largeImageText = np_large_image_text;
 		discordPresence.smallImageText = np_small_image_text;
+		discordPresence.matchSecret = np_match_secret;
+		discordPresence.joinSecret = np_join_secret;
+		discordPresence.spectateSecret = np_spectate_secret;
+		discordPresence.partyMax = (int)np_party_max;
+		discordPresence.partySize = (int)np_party_size;
+		discordPresence.partyId = np_party_id;
+		discordPresence.startTimestamp = np_start_timestamp;
+		discordPresence.endTimestamp = np_end_timestamp;
 		discordPresence.instance = (int8_t)np_instance;
 		Discord_UpdatePresence(&discordPresence);
 		return GM_TRUE;
@@ -182,6 +264,17 @@ extern "C" {
 	EXPORTED_FN double np_clearpresence(void) {
 		if (!np_Initialized) return GM_FALSE;
 		Discord_ClearPresence();
+		np_join_secret = NULL;
+		np_match_secret = NULL;
+		np_spectate_secret = NULL;
+		np_small_image_text = NULL;
+		np_large_image_text = NULL;
+		np_party_id = NULL;
+		np_party_size = 0;
+		np_party_max = 0;
+		np_instance = 0;
+		np_start_timestamp = 0;
+		np_end_timestamp = 0;
 		return GM_TRUE;
 	}
 }
