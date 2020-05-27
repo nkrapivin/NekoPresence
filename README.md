@@ -5,7 +5,7 @@
 An open source, and neko(!) alternative to rousr's Dissonance.
 
 ## Installing and using NekoPresence
-Simply import extension package into your project and then refer to NekoPresence wiki for more information https://github.com/nkrapivin/NekoPresence/wiki
+Simply import extension package (link here: https://github.com/nkrapivin/NekoPresence/releases/latest) into your project and then refer to NekoPresence wiki for more information https://github.com/nkrapivin/NekoPresence/wiki
 
 ## Building NekoPresence
 I provide pre-compiled versions of NekoPresence for Windows and 32/64-bit Linux (tested on Ubuntu).
