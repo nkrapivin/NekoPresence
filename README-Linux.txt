@@ -1,4 +1,9 @@
-libdiscord-rpc.so included with this extension is for 64-Bit systems only!
-Please replace it with a 32-Bit version if you want to build it for 32-Bit systems!
+libdiscord-rpc.so is for 64-Bit systems.
+libdiscord-rpc-32bit.so is for 32-Bit systems.
+
+But in GM:S 1.4 libdiscord-rpc-32bit.so is renamed to libdiscord-rpc.so for simplicity.
+GMS2 is using the 64-Bit version, so no need to worry about name shenanigans.
+
+Same with libnekopresence.so
 
 nya~
