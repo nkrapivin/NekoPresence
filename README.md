@@ -1,4 +1,7 @@
 # NekoPresence, nya~
+
+![nekopresencenyalogo](https://user-images.githubusercontent.com/33228822/83038805-d33f6400-a056-11ea-86bf-c37cea78f41b.png)
+
 An open source, and neko(!) alternative to rousr's Dissonance.
 
 ## Installing and using NekoPresence
