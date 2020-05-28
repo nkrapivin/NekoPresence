@@ -199,7 +199,7 @@ extern "C" {
 
 		np_small_image_text = small_image_text;
 		np_large_image_text = large_image_text;
-		np_instance = static_cast<int8_t>(std::floor(instance));
+		np_instance = (instance > 0.5) ? 1 : 0;
 
 		return GM_TRUE;
 	}
@@ -209,7 +209,7 @@ extern "C" {
 
 		// Yes, compiler, I know that there is a loss of data, no need to warn me about it.
 
-		if (is_unix_ts) {
+		if (is_unix_ts > 0.5) {
 			np_start_timestamp = startTimestamp;
 			np_end_timestamp = endTimestamp;
 		}
