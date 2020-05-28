@@ -24,21 +24,21 @@
 extern "C" {
 	static bool np_Initialized = false;
 
-	static std::string np_small_image_text = NULL;
-	static std::string np_large_image_text = NULL;
+	static std::string np_small_image_text{};
+	static std::string np_large_image_text{};
 
-	static std::string np_join_secret = NULL;
-	static std::string np_spectate_secret = NULL;
-	static std::string np_match_secret = NULL;
+	static std::string np_join_secret{};
+	static std::string np_spectate_secret{};
+	static std::string np_match_secret{};
 
 	static int np_party_size = 0;
 	static int np_party_max = 0;
-	static std::string np_party_id = NULL;
+	static std::string np_party_id{};
 
 	static int64_t np_start_timestamp = 0;
 	static int64_t np_end_timestamp = 0;
 
-	static double np_instance = 0;
+	static int8_t np_instance = 0;
 
 	void (*CreateAsynEventWithDSMap)(int, int) = NULL;
 	int (*CreateDsMap)(int _num, ...) = NULL;
@@ -145,15 +145,6 @@ extern "C" {
 		return GM_TRUE;
 	}
 
-	EXPORTED_FN const char* np_get_avatar_url(char* user_id, char* avatar_hash) {
-		if (!np_Initialized || strcmp(avatar_hash, "") || strcmp(user_id, "")) return "";
-
-		static std::string ret = "https://cdn.discordapp.com/avatars/";
-		ret = ret + user_id + "/" + avatar_hash + ".png";
-
-		return ret.c_str();
-	}
-
 	EXPORTED_FN double np_update() {
 		if (!np_Initialized) return GM_FALSE;
 
@@ -208,7 +199,7 @@ extern "C" {
 
 		np_small_image_text = small_image_text;
 		np_large_image_text = large_image_text;
-		np_instance = static_cast<int>(std::floor(instance));
+		np_instance = static_cast<int8_t>(std::floor(instance));
 
 		return GM_TRUE;
 	}
@@ -238,8 +229,8 @@ extern "C" {
 
 		discordPresence.state = state;
 		discordPresence.details = details;
-		discordPresence.startTimestamp = np_start_timestamp;
-		discordPresence.endTimestamp = np_end_timestamp;
+		if (np_start_timestamp > 0) discordPresence.startTimestamp = np_start_timestamp;
+		if (np_end_timestamp > 0) discordPresence.endTimestamp = np_end_timestamp;
 		discordPresence.largeImageKey = large_image_key;
 		discordPresence.largeImageText = np_large_image_text.c_str();
 		discordPresence.smallImageKey = small_image_key;
@@ -250,7 +241,7 @@ extern "C" {
 		discordPresence.matchSecret = np_match_secret.c_str();
 		discordPresence.joinSecret = np_join_secret.c_str();
 		discordPresence.spectateSecret = np_spectate_secret.c_str();
-		discordPresence.instance = (int8_t)np_instance;
+		discordPresence.instance = np_instance;
 
 		Discord_UpdatePresence(&discordPresence);
 		return GM_TRUE;
