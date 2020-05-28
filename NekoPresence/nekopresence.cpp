@@ -2,20 +2,19 @@
 	It's the NekoPresence source itself, yay.
 */
 
-// TO BUILD THIS EXTENSION ON LINUX REPLACE #include "pch.h" WITH
-//#include <cstddef>
-//#include <cstring>
-#include "pch.h"
+#include <cstddef>
+#include <cstring>
+#include <cstdlib>
+#include <string>
+#include <cmath>
 #include "discord_rpc.h"
 #include "discord_register.h"
-#include <cstdlib>
 
 #if !defined( _MSC_VER)
 #define EXPORTED_FN __attribute__((visibility("default")))
 #else
 #define EXPORTED_FN __declspec(dllexport)
-#define snprintf sprintf_s
-#define strdup _strdup
+#define WIN32_LEAN_AND_MEAN
 #endif
 
 // For GM:S bool -> double
@@ -25,16 +24,16 @@
 extern "C" {
 	static bool np_Initialized = false;
 
-	static char* np_small_image_text = NULL;
-	static char* np_large_image_text = NULL;
+	static std::string np_small_image_text = NULL;
+	static std::string np_large_image_text = NULL;
 
-	static char* np_join_secret = NULL;
-	static char* np_spectate_secret = NULL;
-	static char* np_match_secret = NULL;
+	static std::string np_join_secret = NULL;
+	static std::string np_spectate_secret = NULL;
+	static std::string np_match_secret = NULL;
 
-	static double np_party_size = 0;
-	static double np_party_max = 0;
-	static char* np_party_id = NULL;
+	static int np_party_size = 0;
+	static int np_party_max = 0;
+	static std::string np_party_id = NULL;
 
 	static int64_t np_start_timestamp = 0;
 	static int64_t np_end_timestamp = 0;
@@ -43,8 +42,8 @@ extern "C" {
 
 	void (*CreateAsynEventWithDSMap)(int, int) = NULL;
 	int (*CreateDsMap)(int _num, ...) = NULL;
-	bool (*DsMapAddDouble)(int _index, char* _pKey, double value) = NULL;
-	bool (*DsMapAddString)(int _index, char* _pKey, char* pVal) = NULL;
+	bool (*DsMapAddDouble)(int _index, const char* _pKey, double value) = NULL;
+	bool (*DsMapAddString)(int _index, const char* _pKey, const char* pVal) = NULL;
 	const int EVENT_OTHER_SOCIAL = 70;
 
 	EXPORTED_FN void RegisterCallbacks(char* arg1, char* arg2, char* arg3, char* arg4)
@@ -54,8 +53,8 @@ extern "C" {
 		CreateAsynEventWithDSMap = CreateAsynEventWithDSMapPtr;
 		CreateDsMap = CreateDsMapPtr;
 
-		bool (*DsMapAddDoublePtr)(int _index, char* _pKey, double value) = (bool(*)(int, char*, double))(arg3);
-		bool (*DsMapAddStringPtr)(int _index, char* _pKey, char* pVal) = (bool(*)(int, char*, char*))(arg4);
+		bool (*DsMapAddDoublePtr)(int _index, const char* _pKey, double value) = (bool(*)(int, const char*, double))(arg3);
+		bool (*DsMapAddStringPtr)(int _index, const char* _pKey, const char* pVal) = (bool(*)(int, const char*, const char*))(arg4);
 
 		DsMapAddDouble = DsMapAddDoublePtr;
 		DsMapAddString = DsMapAddStringPtr;
@@ -77,51 +76,51 @@ extern "C" {
 #pragma region // Callbacks.
 	void handleDiscordReady(const DiscordUser *request) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordReady");
-		DsMapAddString(ds_map, (char*)"user_id", (char*)request->userId);
-		DsMapAddString(ds_map, (char*)"username", (char*)request->username);
-		DsMapAddString(ds_map, (char*)"discriminator", (char*)request->discriminator);
-		DsMapAddString(ds_map, (char*)"avatar", (char*)request->avatar);
+		DsMapAddString(ds_map, "event_type", "DiscordReady");
+		DsMapAddString(ds_map, "user_id", request->userId);
+		DsMapAddString(ds_map, "username", request->username);
+		DsMapAddString(ds_map, "discriminator", request->discriminator);
+		DsMapAddString(ds_map, "avatar", request->avatar);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 
 	void handleDiscordError(int errorCode, const char *message) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordError");
-		DsMapAddString(ds_map, (char*)"error_message", (char*)message);
-		DsMapAddDouble(ds_map, (char*)"error_code", errorCode);
+		DsMapAddString(ds_map, "event_type", "DiscordError");
+		DsMapAddString(ds_map, "error_message", message);
+		DsMapAddDouble(ds_map, "error_code", errorCode);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 
 	void handleDiscordDisconnected(int errorCode, const char* message) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordDisconnected");
-		DsMapAddDouble(ds_map, (char*)"error_code", errorCode);
-		DsMapAddString(ds_map, (char*)"error_message", (char*)message);
+		DsMapAddString(ds_map, "event_type", "DiscordDisconnected");
+		DsMapAddDouble(ds_map, "error_code", errorCode);
+		DsMapAddString(ds_map, "error_message", message);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 
 	void handleDiscordJoinGame(const char *joinSecret) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordJoinGame");
-		DsMapAddString(ds_map, (char*)"join_secret", (char*)joinSecret);
+		DsMapAddString(ds_map, "event_type", "DiscordJoinGame");
+		DsMapAddString(ds_map, "join_secret", joinSecret);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 
 	void handleDiscordSpectateGame(const char *spectateSecret) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordSpectateGame");
-		DsMapAddString(ds_map, (char*)"spectate_secret", (char*)spectateSecret);
+		DsMapAddString(ds_map, "event_type", "DiscordSpectateGame");
+		DsMapAddString(ds_map, "spectate_secret", spectateSecret);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 
 	void handleDiscordJoinRequest(const DiscordUser *request) {
 		int ds_map = CreateDsMap(0);
-		DsMapAddString(ds_map, (char*)"event_type", (char*)"DiscordJoinRequest");
-		DsMapAddString(ds_map, (char*)"user_id", (char*)request->userId);
-		DsMapAddString(ds_map, (char*)"username", (char*)request->username);
-		DsMapAddString(ds_map, (char*)"discriminator", (char*)request->discriminator);
-		DsMapAddString(ds_map, (char*)"avatar", (char*)request->avatar);
+		DsMapAddString(ds_map, "event_type", "DiscordJoinRequest");
+		DsMapAddString(ds_map, "user_id", request->userId);
+		DsMapAddString(ds_map, "username", request->username);
+		DsMapAddString(ds_map, "discriminator", request->discriminator);
+		DsMapAddString(ds_map, "avatar", request->avatar);
 		CreateAsynEventWithDSMap(ds_map, EVENT_OTHER_SOCIAL);
 	}
 #pragma endregion
@@ -141,30 +140,18 @@ extern "C" {
 		handlers.joinRequest = handleDiscordJoinRequest;
 
 		// Do the stuff...
-		Discord_Initialize(client_id, &handlers, (int)autoRegister, steam_id);
+		Discord_Initialize(client_id, &handlers, static_cast<int>(std::floor(autoRegister)), steam_id);
 
 		return GM_TRUE;
 	}
 
-	EXPORTED_FN char* np_get_avatar_url(char* user_id, char* avatar_hash) {
-		if (!np_Initialized || strcmp(avatar_hash, "") || strcmp(user_id, "")) return (char*)"";
+	EXPORTED_FN const char* np_get_avatar_url(char* user_id, char* avatar_hash) {
+		if (!np_Initialized || strcmp(avatar_hash, "") || strcmp(user_id, "")) return "";
 
-		// https://cdn.discordapp.com/avatars/{USER_ID}/{AVATAR_HASH}.png
-		auto start_url = "https://cdn.discordapp.com/avatars/";
-		auto backslash = "/";
-		auto png_extn = ".png";
+		static std::string ret = "https://cdn.discordapp.com/avatars/";
+		ret = ret + user_id + "/" + avatar_hash + ".png";
 
-		char* ret;
-
-		ret = (char*)malloc(strlen(start_url) + strlen(backslash) + strlen(png_extn) + strlen(user_id) + strlen(avatar_hash) + 1);
-
-		strcpy(ret, start_url);
-		strcat(ret, user_id);
-		strcat(ret, backslash);
-		strcat(ret, avatar_hash);
-		strcat(ret, png_extn);
-
-		return ret;
+		return ret.c_str();
 	}
 
 	EXPORTED_FN double np_update() {
@@ -188,51 +175,57 @@ extern "C" {
 
 	EXPORTED_FN double np_respond(char* user_id, double reply) {
 		if (!np_Initialized) return GM_FALSE;
-		Discord_Respond(user_id, (int)reply);
+		Discord_Respond(user_id, static_cast<int>(std::floor(reply)));
 		return GM_TRUE;
 	}
 
 	EXPORTED_FN double np_setpresence_secrets(char* matchSecret, char* spectateSecret, char* joinSecret) {
 		if (!np_Initialized) return GM_FALSE;
-		np_join_secret = strdup(joinSecret);
-		np_spectate_secret = strdup(spectateSecret);
-		np_match_secret = strdup(matchSecret);
+		np_join_secret = joinSecret;
+		np_spectate_secret = spectateSecret;
+		np_match_secret = matchSecret;
 		return GM_TRUE;
 	}
 
 	EXPORTED_FN double np_setpresence_clearsecrets(void) {
 		if (!np_Initialized) return GM_FALSE;
-		np_join_secret = NULL;
-		np_match_secret = NULL;
-		np_spectate_secret = NULL;
+		np_join_secret.clear();
+		np_match_secret.clear();
+		np_spectate_secret.clear();
 		return GM_TRUE;
 	}
 
 	EXPORTED_FN double np_setpresence_partyparams(double partySize, double partyMax, char* partyId) {
 		if (!np_Initialized) return GM_FALSE;
-		np_party_size = (int)partySize;
-		np_party_max = (int)partyMax;
-		np_party_id = strdup(partyId);
+		np_party_size = static_cast<int>(std::floor(partySize));
+		np_party_max = static_cast<int>(std::floor(partyMax));
+		np_party_id = partyId;
 		return GM_TRUE;
 	}
 
 	EXPORTED_FN double np_setpresence_more(char* small_image_text, char* large_image_text, double instance) {
 		if (!np_Initialized) return GM_FALSE;
 
-		// For some reason pointers to *_image_text screw up, so I'm using strdup to copy them.
-		np_small_image_text = strdup(small_image_text);
-		np_large_image_text = strdup(large_image_text);
-		np_instance = instance;
+		np_small_image_text = small_image_text;
+		np_large_image_text = large_image_text;
+		np_instance = static_cast<int>(std::floor(instance));
 
 		return GM_TRUE;
 	}
 
-	EXPORTED_FN double np_setpresence_timestamps(double startTimestamp, double endTimestamp) {
+	EXPORTED_FN double np_setpresence_timestamps(double startTimestamp, double endTimestamp, double is_unix_ts) {
 		if (!np_Initialized) return GM_FALSE;
 
 		// Yes, compiler, I know that there is a loss of data, no need to warn me about it.
-		np_start_timestamp = startTimestamp;
-		np_end_timestamp = endTimestamp;
+
+		if (is_unix_ts) {
+			np_start_timestamp = startTimestamp;
+			np_end_timestamp = endTimestamp;
+		}
+		else {
+			np_start_timestamp = (startTimestamp - 25569) * 86400;
+			np_end_timestamp = (endTimestamp - 25569) * 86400;
+		}
 
 		return GM_TRUE;
 	}
@@ -242,21 +235,23 @@ extern "C" {
 
 		DiscordRichPresence discordPresence;
 		memset(&discordPresence, 0, sizeof(discordPresence));
+
 		discordPresence.state = state;
 		discordPresence.details = details;
-		discordPresence.largeImageKey = large_image_key;
-		discordPresence.smallImageKey = small_image_key;
-		discordPresence.largeImageText = np_large_image_text;
-		discordPresence.smallImageText = np_small_image_text;
-		discordPresence.matchSecret = np_match_secret;
-		discordPresence.joinSecret = np_join_secret;
-		discordPresence.spectateSecret = np_spectate_secret;
-		discordPresence.partyMax = (int)np_party_max;
-		discordPresence.partySize = (int)np_party_size;
-		discordPresence.partyId = np_party_id;
 		discordPresence.startTimestamp = np_start_timestamp;
 		discordPresence.endTimestamp = np_end_timestamp;
+		discordPresence.largeImageKey = large_image_key;
+		discordPresence.largeImageText = np_large_image_text.c_str();
+		discordPresence.smallImageKey = small_image_key;
+		discordPresence.smallImageText = np_small_image_text.c_str();
+		discordPresence.partyId = np_party_id.c_str();
+		discordPresence.partySize = np_party_size;
+		discordPresence.partyMax = np_party_max;
+		discordPresence.matchSecret = np_match_secret.c_str();
+		discordPresence.joinSecret = np_join_secret.c_str();
+		discordPresence.spectateSecret = np_spectate_secret.c_str();
 		discordPresence.instance = (int8_t)np_instance;
+
 		Discord_UpdatePresence(&discordPresence);
 		return GM_TRUE;
 	}
@@ -264,12 +259,12 @@ extern "C" {
 	EXPORTED_FN double np_clearpresence(void) {
 		if (!np_Initialized) return GM_FALSE;
 		Discord_ClearPresence();
-		np_join_secret = NULL;
-		np_match_secret = NULL;
-		np_spectate_secret = NULL;
-		np_small_image_text = NULL;
-		np_large_image_text = NULL;
-		np_party_id = NULL;
+		np_join_secret.clear();
+		np_match_secret.clear();
+		np_spectate_secret.clear();
+		np_small_image_text.clear();
+		np_large_image_text.clear();
+		np_party_id.clear();
 		np_party_size = 0;
 		np_party_max = 0;
 		np_instance = 0;
