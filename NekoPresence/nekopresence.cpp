@@ -33,6 +33,7 @@ extern "C" {
 
 	static int np_party_size = 0;
 	static int np_party_max = 0;
+	static int np_party_privacy = 0;
 	static std::string np_party_id{};
 
 	static int64_t np_start_timestamp = 0;
@@ -186,11 +187,12 @@ extern "C" {
 		return GM_TRUE;
 	}
 
-	EXPORTED_FN double np_setpresence_partyparams(double partySize, double partyMax, char* partyId) {
+	EXPORTED_FN double np_setpresence_partyparams(double partySize, double partyMax, char* partyId, double partyPrivacy) {
 		if (!np_Initialized) return GM_FALSE;
 		np_party_size = static_cast<int>(std::floor(partySize));
 		np_party_max = static_cast<int>(std::floor(partyMax));
 		np_party_id = partyId;
+		np_party_privacy = static_cast<int>(std::floor(partyPrivacy));
 		return GM_TRUE;
 	}
 
@@ -207,15 +209,13 @@ extern "C" {
 	EXPORTED_FN double np_setpresence_timestamps(double startTimestamp, double endTimestamp, double is_unix_ts) {
 		if (!np_Initialized) return GM_FALSE;
 
-		// Yes, compiler, I know that there is a loss of data, no need to warn me about it.
-
 		if (is_unix_ts > 0.5) {
-			np_start_timestamp = startTimestamp;
-			np_end_timestamp = endTimestamp;
+			np_start_timestamp = static_cast<int64_t>(startTimestamp);
+			np_end_timestamp = static_cast<int64_t>(endTimestamp);
 		}
 		else {
-			np_start_timestamp = (startTimestamp - 25569) * 86400;
-			np_end_timestamp = (endTimestamp - 25569) * 86400;
+			np_start_timestamp = (static_cast<int64_t>(startTimestamp) - 25569) * 86400;
+			np_end_timestamp = (static_cast<int64_t>(endTimestamp) - 25569) * 86400;
 		}
 
 		return GM_TRUE;
@@ -238,6 +238,7 @@ extern "C" {
 		discordPresence.partyId = np_party_id.c_str();
 		discordPresence.partySize = np_party_size;
 		discordPresence.partyMax = np_party_max;
+		discordPresence.partyPrivacy = np_party_privacy;
 		discordPresence.matchSecret = np_match_secret.c_str();
 		discordPresence.joinSecret = np_join_secret.c_str();
 		discordPresence.spectateSecret = np_spectate_secret.c_str();
@@ -258,6 +259,7 @@ extern "C" {
 		np_party_id.clear();
 		np_party_size = 0;
 		np_party_max = 0;
+		np_party_privacy = 0;
 		np_instance = 0;
 		np_start_timestamp = 0;
 		np_end_timestamp = 0;

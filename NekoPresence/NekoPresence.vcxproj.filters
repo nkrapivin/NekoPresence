@@ -32,5 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="discord-rpc.lib" />
+    <Library Include="discord-rpc-win64.lib" />
   </ItemGroup>
 </Project>
