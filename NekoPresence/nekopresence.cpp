@@ -214,8 +214,8 @@ extern "C" {
 			np_end_timestamp = static_cast<int64_t>(endTimestamp);
 		}
 		else {
-			np_start_timestamp = (static_cast<int64_t>(startTimestamp) - 25569) * 86400;
-			np_end_timestamp = (static_cast<int64_t>(endTimestamp) - 25569) * 86400;
+			np_start_timestamp = static_cast<int64_t>((startTimestamp - 25569) * 86400);
+			np_end_timestamp = static_cast<int64_t>((endTimestamp - 25569) * 86400);
 		}
 
 		return GM_TRUE;
