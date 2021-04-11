@@ -36,6 +36,8 @@ Coming soon... I hope... I *will* make a macOS version eventually...
 ## Credits
 [me](https://twitter.com/nkrapivindev/) - Making this awesome thing.
 
+[AceKiron](https://twitter.com/AceKiron/) - Added demo project to the source code and added a 5 second timer to see if Discord is even running.
+
 [YellowAfterlife](https://yal.cc/) - cool awesome amazing beautiful wonderful adorable cute logo
 
 
