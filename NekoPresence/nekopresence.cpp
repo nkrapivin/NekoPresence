@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <string>
 #include <cmath>
+#include <vector>
 #include "discord_rpc.h"
 #include "discord_register.h"
 
@@ -30,6 +31,7 @@ extern "C" {
 	static std::string np_join_secret{};
 	static std::string np_spectate_secret{};
 	static std::string np_match_secret{};
+	static std::vector<std::pair<std::string, std::string>> np_button_storage{};
 
 	static int np_party_size = 0;
 	static int np_party_max = 0;
@@ -63,7 +65,11 @@ extern "C" {
 
 	// Init function.
 	EXPORTED_FN double np_initdll(void) {
-		np_Initialized = true;
+		if (!np_Initialized) {
+			np_button_storage.reserve(DISCORD_MAX_BUTTONS);
+			np_button_storage.resize(DISCORD_MAX_BUTTONS);
+			np_Initialized = true;
+		}
 		return GM_TRUE;
 	}
 
@@ -171,6 +177,16 @@ extern "C" {
 		return GM_TRUE;
 	}
 
+	EXPORTED_FN double np_setpresence_buttons(double btnId, char* btnName, char* btnUrl) {
+		if (!np_Initialized) return GM_FALSE;
+		int btnIdi = (int)btnId;
+		if (btnIdi < 0 || btnIdi >= DISCORD_MAX_BUTTONS) return GM_FALSE;
+
+		np_button_storage[btnIdi].first = btnName;
+		np_button_storage[btnIdi].second = btnUrl;
+		return GM_TRUE;
+	}
+
 	EXPORTED_FN double np_setpresence_secrets(char* matchSecret, char* spectateSecret, char* joinSecret) {
 		if (!np_Initialized) return GM_FALSE;
 		np_join_secret = joinSecret;
@@ -244,6 +260,22 @@ extern "C" {
 		discordPresence.spectateSecret = np_spectate_secret.c_str();
 		discordPresence.instance = np_instance;
 
+		if (!np_button_storage[0].first.empty() || !np_button_storage[1].first.empty()) {
+			if (!np_button_storage[0].first.empty()) {
+				discordPresence.buttonNames[0] = np_button_storage[0].first.c_str();
+				if (!np_button_storage[0].second.empty()) {
+					discordPresence.buttonUrls[0] = np_button_storage[0].second.c_str();
+				}
+			}
+
+			if (!np_button_storage[1].first.empty()) {
+				discordPresence.buttonNames[1] = np_button_storage[1].first.c_str();
+				if (!np_button_storage[1].second.empty()) {
+					discordPresence.buttonUrls[1] = np_button_storage[1].second.c_str();
+				}
+			}
+		}
+
 		Discord_UpdatePresence(&discordPresence);
 		return GM_TRUE;
 	}
@@ -263,6 +295,11 @@ extern "C" {
 		np_instance = 0;
 		np_start_timestamp = 0;
 		np_end_timestamp = 0;
+
+		for (auto& item : np_button_storage) {
+			item = std::make_pair(std::string(), std::string());
+		}
+
 		return GM_TRUE;
 	}
 }

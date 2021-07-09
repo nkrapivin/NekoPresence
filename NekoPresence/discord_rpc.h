@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define DISCORD_MAX_BUTTONS 2
+
 typedef struct DiscordRichPresence {
     const char* state;   /* max 128 bytes */
     const char* details; /* max 128 bytes */
@@ -40,6 +42,8 @@ typedef struct DiscordRichPresence {
     const char* joinSecret;     /* max 128 bytes */
     const char* spectateSecret; /* max 128 bytes */
     int8_t instance;
+	const char* buttonNames[DISCORD_MAX_BUTTONS]; /* max 2 buttons */
+	const char* buttonUrls[DISCORD_MAX_BUTTONS];  /* max 2 buttons */
 } DiscordRichPresence;
 
 typedef struct DiscordUser {
