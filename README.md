@@ -32,7 +32,7 @@ Anyway...
 
 #### macOS (64-Bit Only)
 1. Make sure you have Xcode and an Apple Dev account.
-2. Create an Xcode Library project.
+2. Create an Xcode Library project, framework MUST BE `STL (C++ library)`.
 3. Add CoreServices, CoreFoundation and AppKit frameworks into your project.
 4. Add the `libdiscord-rpc-macOS.a` file as a "framework" too.
 5. Add `NekoPresence.cpp`, `discord_register.h`, `discord_rpc.h` as source files into the project.
