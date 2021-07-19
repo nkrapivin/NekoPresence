@@ -31,7 +31,15 @@ Anyway...
 3. Copy `libnekopresence-32bit.so` as `libnekopresence.so` to GM:S 1.4 extension files.
 
 #### macOS (64-Bit Only)
-Coming soon... I hope... I *will* make a macOS version eventually...
+1. Make sure you have Xcode and an Apple Dev account.
+2. Create an Xcode Library project.
+3. Add CoreServices, CoreFoundation and AppKit frameworks into your project.
+4. Add the `libdiscord-rpc-macOS.a` file as a "framework" too.
+5. Add `NekoPresence.cpp`, `discord_register.h`, `discord_rpc.h` as source files into the project.
+6. Make sure that for frameworks you select `Do Not Embed`, so that the dylib will load them from macOS.
+7. Setup any code signing you might need.
+8. Build the library and copy out the dylib.
+9. Add/Replace it in the project folder.
 
 ## Credits
 [me](https://twitter.com/nkrapivindev/) - Making this awesome thing.
@@ -40,5 +48,6 @@ Coming soon... I hope... I *will* make a macOS version eventually...
 
 [YellowAfterlife](https://yal.cc/) - cool awesome amazing beautiful wonderful adorable cute logo
 
+[TabularElf](https://twitter.com/TabularElf) - apple code signing. (fuck apple btw)
 
 nya~
