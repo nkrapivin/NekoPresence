@@ -31,6 +31,7 @@ Anyway...
 3. Copy `libnekopresence-32bit.so` as `libnekopresence.so` to GM:S 1.4 extension files.
 
 #### macOS (64-Bit Only)
+<s>
 1. Make sure you have Xcode and an Apple Dev account.
 2. Create an Xcode Library project, framework MUST BE `STL (C++ library)`.
 3. Add CoreServices, CoreFoundation and AppKit frameworks into your project.
@@ -40,6 +41,9 @@ Anyway...
 7. Setup any code signing you might need.
 8. Build the library and copy out the dylib.
 9. Add/Replace it in the project folder.
+</s>
+
+Disregard all of this, good luck.
 
 ## Credits
 [me](https://twitter.com/nkrapivindev/) - Making this awesome thing.
