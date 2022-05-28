@@ -96,7 +96,7 @@
       ],"ProxyFiles":[
         {"TargetMask":7,"resourceVersion":"1.0","name":"libnekopresence.so","tags":[],"resourceType":"GMProxyFile",},
         {"TargetMask":6,"resourceVersion":"1.0","name":"NekoPresence_x64.dll","tags":[],"resourceType":"GMProxyFile",},
-        {"TargetMask":1,"resourceVersion":"1.0","name":"libnekopresenceMac.dylib","tags":[],"resourceType":"GMProxyFile",},
+        {"TargetMask":1,"resourceVersion":"1.0","name":"libNekoPresence.dylib","tags":[],"resourceType":"GMProxyFile",},
       ],"copyToTargets":194,"order":[
         {"name":"__np_initdll","path":"extensions/NekoPresence/NekoPresence.yy",},
         {"name":"__np_shutdown","path":"extensions/NekoPresence/NekoPresence.yy",},
